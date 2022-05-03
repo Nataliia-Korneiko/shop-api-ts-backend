@@ -9,7 +9,10 @@ import {
   updateProductSchema,
   deleteProductSchema,
 } from '../schema/product.schema';
-import { createUserHandler } from '../controller/user.controller';
+import {
+  createUserHandler,
+  getCurrentUser,
+} from '../controller/user.controller';
 import {
   createUserSessionHandler,
   getUserSessionsHandler,
@@ -26,6 +29,8 @@ function routes(app: Express) {
   app.get('/check', (req: Request, res: Response) => res.sendStatus(200));
 
   app.post('/api/users', validateResource(createUserSchema), createUserHandler);
+
+  app.get('/api/me', requireUser, getCurrentUser);
 
   app.post(
     '/api/sessions',
