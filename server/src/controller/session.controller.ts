@@ -1,12 +1,34 @@
-import { Request, Response } from 'express';
+import { CookieOptions, Request, Response } from 'express';
 import config from 'config';
-import { validatePassword } from '../service/user.service';
+// import jwt from 'jsonwebtoken';
+import {
+  validatePassword,
+  getGoogleOAuthTokens,
+  getGoogleUser,
+  findAndUpdateUser,
+} from '../service/user.service';
 import {
   createSession,
   findSessions,
   updateSession,
 } from '../service/session.service';
 import { signJwt } from '../utils/jwt.utils';
+import log from '../utils/logger';
+import { string } from 'zod';
+
+const accessTokenCookieOptions: CookieOptions = {
+  maxAge: 900000, // 15 mins
+  httpOnly: true,
+  domain: 'localhost',
+  path: '/',
+  sameSite: 'lax',
+  secure: false,
+};
+
+const refreshTokenCookieOptions: CookieOptions = {
+  ...accessTokenCookieOptions,
+  maxAge: 3.154e10, // 1 year
+};
 
 export async function createUserSessionHandler(req: Request, res: Response) {
   // validate the user's password
@@ -32,23 +54,8 @@ export async function createUserSessionHandler(req: Request, res: Response) {
   );
 
   // set cookies
-  res.cookie('accessToken', accessToken, {
-    maxAge: 900000, // 15 mins
-    httpOnly: true,
-    domain: 'localhost',
-    path: '/',
-    sameSite: 'strict',
-    secure: false,
-  });
-
-  res.cookie('refreshToken', refreshToken, {
-    maxAge: 3.154e10, // 1 year
-    httpOnly: true,
-    domain: 'localhost',
-    path: '/',
-    sameSite: 'strict',
-    secure: false,
-  });
+  res.cookie('accessToken', accessToken, accessTokenCookieOptions);
+  res.cookie('refreshToken', refreshToken, refreshTokenCookieOptions);
 
   // return access & refresh tokens
   return res.send({ accessToken, refreshToken });
@@ -69,4 +76,65 @@ export async function deleteSessionHandler(req: Request, res: Response) {
     accessToken: null,
     refreshToken: null,
   });
+}
+
+export async function googleOauthHandler(req: Request, res: Response) {
+  // get the code from qs
+  const code = req.query.code as string;
+
+  try {
+    // get the id and access token with the code
+    const { id_token, access_token } = await getGoogleOAuthTokens({ code });
+    // console.log({ id_token, access_token });
+
+    // get user with tokens
+    // const googleUser = jwt.decode(id_token);
+    const googleUser = await getGoogleUser({ id_token, access_token });
+    // console.log({ googleUser });
+
+    if (!googleUser.verified_email) {
+      return res.status(403).send('Google account is not verified');
+    }
+
+    // upsert the user
+    const user = await findAndUpdateUser(
+      {
+        email: googleUser.email,
+      },
+      {
+        email: googleUser.email,
+        name: googleUser.name,
+        picture: googleUser.picture,
+      },
+      {
+        upsert: true,
+        new: true,
+      }
+    );
+
+    // create a session
+    const session = await createSession(user._id, req.get('user-agent') || '');
+
+    // create an access token
+    const accessToken = signJwt(
+      { ...user.toJSON(), session: session._id },
+      { expiresIn: config.get('accessTokenTtl') }
+    );
+
+    // create a refresh token
+    const refreshToken = signJwt(
+      { ...user.toJSON(), session: session._id },
+      { expiresIn: config.get('refreshTokenTtl') }
+    );
+
+    // set cookies
+    res.cookie('accessToken', accessToken, accessTokenCookieOptions);
+    res.cookie('refreshToken', refreshToken, refreshTokenCookieOptions);
+
+    // redirect back to client
+    res.redirect(config.get('origin'));
+  } catch (error) {
+    log.error(error, 'Failed to authorize Google user');
+    return res.redirect(`${config.get('origin')}/oauth/error`);
+  }
 }

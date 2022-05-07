@@ -1,7 +1,12 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-const { DB_URI } = process.env;
+const {
+  DB_URI,
+  GOOGLE_CLIENT_ID,
+  GOOGLE_CLIENT_SECRET,
+  GOOGLE_OAUTH_REDIRECT_URL,
+} = process.env;
 
 export default {
   port: 1337,
@@ -31,4 +36,7 @@ s6w+QwfgI67nq1b6B76Atsln0WXmYAmqANIr80cOgaIhOFlsmoio+WT+xh1bR/rk
 ExuCsybZ6o//iuHWhWQEvQJBALq+SR1e7csYW70VKXicnnNTzn9wevDvmuVTxfSG
 //H/v/uewyT3FbD0mgbDOhl2esZ56DrYg4cSyMmQzKpyIyA=
 -----END RSA PRIVATE KEY-----`,
+  googleClientId: GOOGLE_CLIENT_ID,
+  googleClientSecret: GOOGLE_CLIENT_SECRET,
+  googleOauthRedirectUrl: GOOGLE_OAUTH_REDIRECT_URL,
 };
