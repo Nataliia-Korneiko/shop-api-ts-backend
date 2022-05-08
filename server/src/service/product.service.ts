@@ -1,17 +1,11 @@
-import {
-  DocumentDefinition,
-  FilterQuery,
-  QueryOptions,
-  UpdateQuery,
-} from 'mongoose';
-import ProductModel, { ProductDocument } from '../models/product.model';
+import { FilterQuery, QueryOptions, UpdateQuery } from 'mongoose';
+import ProductModel, {
+  ProductDocument,
+  ProductInput,
+} from '../models/product.model';
 import { databaseResponseTimeHistogram } from '../utils/metrics';
 
-export async function createProduct(
-  input: DocumentDefinition<
-    Omit<ProductDocument, 'createdAt' | 'updatedAt' | 'productId'>
-  >
-) {
+export async function createProduct(input: ProductInput) {
   const metricsLabels = {
     operation: 'createProduct',
   };

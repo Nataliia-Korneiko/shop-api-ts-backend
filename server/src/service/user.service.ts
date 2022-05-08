@@ -1,21 +1,12 @@
-import {
-  DocumentDefinition,
-  FilterQuery,
-  UpdateQuery,
-  QueryOptions,
-} from 'mongoose';
+import { FilterQuery, UpdateQuery, QueryOptions } from 'mongoose';
 import { omit } from 'lodash';
 import config from 'config';
 import axios from 'axios';
 import qs from 'qs';
-import UserModel, { UserDocument } from '../models/user.model';
+import UserModel, { UserDocument, UserInput } from '../models/user.model';
 import log from '../utils/logger';
 
-export async function createUser(
-  input: DocumentDefinition<
-    Omit<UserDocument, 'createdAt' | 'updatedAt' | 'comparePassword'>
-  >
-) {
+export async function createUser(input: UserInput) {
   try {
     const user = await UserModel.create(input);
 

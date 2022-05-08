@@ -1,1 +1,1 @@
-# shop-api-ts-backend
+# shop-api-typescript

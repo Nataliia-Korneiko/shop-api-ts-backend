@@ -1,5 +1,5 @@
 {
-  "name": "shop-api-ts-backend",
+  "name": "server",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -9,15 +9,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Nataliia-Korneiko/shop-api-ts-backend.git"
+    "url": "git+https://github.com/Nataliia-Korneiko/shop-api-typescript.git"
   },
   "keywords": [],
   "author": "Nataliia Korneiko <korneyko_ns@ukr.net>",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/Nataliia-Korneiko/shop-api-ts-backend/issues"
+    "url": "https://github.com/Nataliia-Korneiko/shop-api-typescript/issues"
   },
-  "homepage": "https://github.com/Nataliia-Korneiko/shop-api-ts-backend#readme",
+  "homepage": "https://github.com/Nataliia-Korneiko/shop-api-typescript#readme",
   "dependencies": {
     "axios": "^0.27.2",
     "bcrypt": "^5.0.1",

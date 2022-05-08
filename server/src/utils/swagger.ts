@@ -30,8 +30,7 @@ const options: swaggerJsdoc.Options = {
 };
 
 const swaggerSpec = swaggerJsdoc(options);
-
-console.log(swaggerSpec);
+// console.log(swaggerSpec);
 
 function swaggerDocs(app: Express, port: number) {
   // swagger page
